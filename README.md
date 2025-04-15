@@ -1,2 +1,2 @@
 # BlindTimer
-Blind timer for texas hold-em poker
+Blind timer for texas hold-em poker.

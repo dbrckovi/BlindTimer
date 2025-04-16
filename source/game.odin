@@ -1,6 +1,8 @@
 package game
 
 import "core:c"
+import sa "core:container/small_array"
+import "core:fmt"
 import rl "vendor:raylib"
 
 _run: bool
@@ -16,6 +18,16 @@ init :: proc() {
 	rl.InitWindow(_window_size.x, _window_size.y, "Blind Timer")
 	// rl.SetExitKey(.KEY_NULL)
 	rl.MaximizeWindow()
+
+	GenerateTemplates()
+	// for template in _gameTemplates {
+	// 	fmt.println("Name:", template.name)
+	// 	fmt.println("Description:", template.description)
+	// 	fmt.println("Stack:", template.startingStack)
+	// 	for i := 0; i < sa.len(template.levels); i += 1 {
+	// 		fmt.println(sa.get(template.levels, i))
+	// 	}
+	// }
 }
 
 update :: proc() {

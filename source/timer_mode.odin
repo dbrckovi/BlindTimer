@@ -39,10 +39,6 @@ TimerModeDraw :: proc(ft: f32) {
 	rl.ClearBackground(_running ? _timer_back_color : _timer_back_color_paused)
 	center := GetWindowCenter()
 
-	if !_running {
-		rl.DrawText("Paused", 10, 10, ScaleFont(50), rl.ORANGE)
-	}
-
 	if rl.GuiButton({f32(_window_size.x - 70), 10, 50, 30}, "* * *") {
 		_mode = .SETTINGS
 	}
@@ -64,6 +60,7 @@ TimerModeDraw :: proc(ft: f32) {
 		ScaleFont(150),
 		_blind_color,
 	)
+
 	DrawTextCenter(
 		"3000/6000   300",
 		center.x,
@@ -71,5 +68,31 @@ TimerModeDraw :: proc(ft: f32) {
 		ScaleFont(100),
 		rl.GRAY,
 	)
+
+	chipRadius := f32(ScaleFont(60))
+	firstChipY := i32(f32(_window_size.y) * 0.2)
+	chipX := i32(chipRadius) + 10
+	DrawChip(rl.WHITE, rl.BLACK, {chipX, firstChipY + i32(chipRadius * 0) * 2}, chipRadius, 1000)
+	DrawChip(rl.BLUE, rl.WHITE, {chipX, firstChipY + i32(chipRadius * 1) * 2}, chipRadius, 3000)
+	DrawChip(rl.GREEN, rl.WHITE, {chipX, firstChipY + i32(chipRadius * 2) * 2}, chipRadius, 3000)
+	DrawChip(rl.RED, rl.WHITE, {chipX, firstChipY + i32(chipRadius * 3) * 2}, chipRadius, 3000)
+}
+
+DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32) {
+	segments := 18
+	floatCenter := rl.Vector2{f32(center.x), f32(center.y)}
+	rl.DrawCircleV(floatCenter, radius, c1)
+	for angle := 0; angle < 360; angle += 360 / segments * 2 {
+		rl.DrawCircleSector(
+			floatCenter,
+			radius,
+			f32(angle),
+			f32(angle) + 360 / f32(segments),
+			5,
+			c2,
+		)
+	}
+	rl.DrawCircleV(floatCenter, radius * 0.8, c1)
+	DrawTextCenter(fmt.ctprint(value), center.x, center.y, ScaleFont(36), c2)
 }
 

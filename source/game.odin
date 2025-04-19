@@ -7,7 +7,6 @@ import rl "vendor:raylib"
 
 _run: bool
 _window_size: [2]i32 = {800, 600}
-_back_color := rl.Color{22, 44, 53, 255}
 _mode: GameMode = .TIMER
 _debug_text: cstring = ""
 
@@ -15,6 +14,7 @@ init :: proc() {
 	_run = true
 	rl.SetConfigFlags({.VSYNC_HINT, .WINDOW_RESIZABLE, .WINDOW_MAXIMIZED})
 	rl.SetTargetFPS(200)
+	// rl.GuiSetStyle(rl.GuiControl.DEFAULT, rl.FONT2, 40)
 	rl.InitWindow(_window_size.x, _window_size.y, "Blind Timer")
 	// rl.SetExitKey(.KEY_NULL)
 	rl.MaximizeWindow()
@@ -48,7 +48,6 @@ update :: proc() {
 
 draw :: proc(ft: f32) {
 	rl.BeginDrawing()
-	rl.ClearBackground(_back_color)
 
 	switch _mode {
 	case .TIMER:

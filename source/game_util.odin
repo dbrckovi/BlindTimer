@@ -1,6 +1,8 @@
 package game
 
 import "core:c"
+import "core:fmt"
+import "core:time"
 import rl "vendor:raylib"
 
 GetWindowCenter :: proc() -> [2]i32 {
@@ -21,5 +23,14 @@ ScaleFont :: proc(fontSize: c.int) -> c.int {
 
 	// fontSize / 1920 = result / _window_size.x
 	return _window_size.x * fontSize / 1920
+}
+
+VisualizeTime :: proc(duration: time.Duration) -> cstring {
+	hours, minutes, seconds := time.clock(duration)
+	if hours > 0 {
+		return fmt.ctprintf("%02d:%02d:%02d", hours, minutes, seconds)
+	} else {
+		return fmt.ctprintf("%02d:%02d", minutes, seconds)
+	}
 }
 

@@ -15,7 +15,7 @@ DrawTextCenter :: proc(text: cstring, cX, cY: c.int, fontSize: c.int, color: rl.
 	x := cX - textWidth / 2
 	y := cY - fontSize / 2
 
-	rl.DrawText(text, x, y, fontSize, rl.YELLOW)
+	rl.DrawText(text, x, y, fontSize, color)
 }
 
 //Scales the font relative to fullHD width (1920)

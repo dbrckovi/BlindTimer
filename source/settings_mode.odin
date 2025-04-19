@@ -2,7 +2,7 @@ package game
 
 import rl "vendor:raylib"
 
-_settings_back_color := rl.Color{53, 44, 22, 255}
+_settings_back_color := rl.Color{33, 33, 33, 255}
 
 SettingsModeUpdate :: proc() {
 

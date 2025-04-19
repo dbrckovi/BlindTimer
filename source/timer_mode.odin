@@ -9,7 +9,12 @@ _levelStartTime := time.now() //when current BlindLevel timer started
 _lastPauseStartTime := time.now() //last time game was paused
 _durationSinceStart: time.Duration //duration since level started (minus pauses)
 _pauseAccumulated: time.Duration //total duration of all pauses since level started
+
 _timer_back_color := rl.Color{22, 44, 53, 255}
+_timer_back_color_paused := rl.Color{22, 5, 5, 255}
+_time_color := rl.Color{220, 220, 255, 255}
+_time_color_paused := rl.ORANGE
+_blind_color := rl.Color{220, 220, 255, 255}
 
 TimerModeUpdate :: proc() {
 	if _running {
@@ -31,20 +36,40 @@ TimerModeUpdate :: proc() {
 }
 
 TimerModeDraw :: proc(ft: f32) {
-	rl.ClearBackground(_timer_back_color)
+	rl.ClearBackground(_running ? _timer_back_color : _timer_back_color_paused)
 	center := GetWindowCenter()
 
-	if _running {
-		rl.DrawText("Running", 10, 10, ScaleFont(50), rl.WHITE)
-	} else {
-		rl.DrawText("Paused", 10, 10, ScaleFont(50), rl.YELLOW)
+	if !_running {
+		rl.DrawText("Paused", 10, 10, ScaleFont(50), rl.ORANGE)
 	}
 
 	if rl.GuiButton({f32(_window_size.x - 70), 10, 50, 30}, "* * *") {
 		_mode = .SETTINGS
 	}
 
-	text := VisualizeTime(_durationSinceStart)
-	DrawTextCenter(text, center.x, center.y, ScaleFont(400), rl.YELLOW)
+	// Level name
+	levelName: cstring = "Tournament (slow fast bla) - level 1"
+	DrawTextCenter(levelName, center.x, center.y / 8, ScaleFont(80), rl.BLUE)
+
+	//Main central timer
+	timeText := VisualizeTime(_durationSinceStart)
+	timeColor := _running ? _time_color : _time_color_paused
+	DrawTextCenter(timeText, center.x, center.y - center.y / 4, ScaleFont(350), timeColor)
+
+	//Blinds
+	DrawTextCenter(
+		"2000/4000   200",
+		center.x,
+		center.y + center.y / 3,
+		ScaleFont(150),
+		_blind_color,
+	)
+	DrawTextCenter(
+		"3000/6000   300",
+		center.x,
+		_window_size.y - _window_size.y / 6,
+		ScaleFont(100),
+		rl.GRAY,
+	)
 }
 

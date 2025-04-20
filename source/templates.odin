@@ -98,6 +98,9 @@ GenerateTemplate :: proc(
 	for level in levels {
 		sa.append(&ret.levels, level)
 	}
+	for chipAmount in chips {
+		sa.append(&ret.chips, chipAmount)
+	}
 	return ret
 }
 

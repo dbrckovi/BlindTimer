@@ -13,7 +13,7 @@ SettingsModeDraw :: proc(ft: f32) {
 	center := GetWindowCenter()
 
 	if rl.GuiButton({f32(center.x - 100), f32(_window_size.y - 40), 90, 30}, "OK") {
-		_mode = .TIMER
+		// _mode = .TIMER
 	}
 
 	if rl.GuiButton({f32(center.x + 10), f32(_window_size.y - 40), 90, 30}, "Cancel") {

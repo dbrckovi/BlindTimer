@@ -1,5 +1,6 @@
 package game
 
+import sa "core:container/small_array"
 import "core:fmt"
 import "core:time"
 import rl "vendor:raylib"
@@ -11,6 +12,8 @@ _durationSinceStart: time.Duration //duration since level started (minus pauses)
 _pauseAccumulated: time.Duration //total duration of all pauses since level started
 _pauseBlinkStart: time.Time //Time when blink color switched in pause mode
 _pauseBlinkState := false //Current blink state in pause mode
+_currentTemplate: ^GameTemplate
+_currentBlindLevel := 0 //Current blind level
 
 _timer_back_color := rl.Color{22, 44, 53, 255}
 _timer_back_color_paused := rl.Color{22, 5, 5, 255}
@@ -26,11 +29,7 @@ TimerModeUpdate :: proc() {
 		)
 
 		if rl.IsKeyPressed(.SPACE) {
-			//going into pause
-			_lastPauseStartTime = time.now()
-			_running = false
-			_pauseBlinkState = true
-			_pauseBlinkStart = time.now()
+			PauseGame()
 		}
 	} else { 	// pause mode
 
@@ -42,9 +41,7 @@ TimerModeUpdate :: proc() {
 		}
 
 		if rl.IsKeyPressed(.SPACE) {
-			//resuming pause or starting
-			_pauseAccumulated += time.since(_lastPauseStartTime)
-			_running = true
+			ResumeGame()
 		}
 	}
 }
@@ -55,11 +52,11 @@ TimerModeDraw :: proc(ft: f32) {
 
 	if rl.GuiButton({f32(_window_size.x - 70), 10, 50, 30}, "* * *") {
 		_mode = .SETTINGS
+		if _running {PauseGame()}
 	}
 
 	// Level name
-	levelName: cstring = "Tournament (slow fast bla) - level 1"
-	DrawTextCenter(levelName, center.x, center.y / 8, ScaleFont(80), rl.BLUE)
+	DrawTextCenter(_currentTemplate.name, center.x, center.y / 8, ScaleFont(80), rl.BLUE)
 
 	//Main central timer
 	timeText := VisualizeTime(_durationSinceStart)
@@ -67,58 +64,49 @@ TimerModeDraw :: proc(ft: f32) {
 	if !_running && _pauseBlinkState {timeColor = _time_color_paused}
 	DrawTextCenter(timeText, center.x, center.y - center.y / 4, ScaleFont(350), timeColor)
 
-	//Blinds
+	//Big blind
+	if sa.len(_currentTemplate.levels) <= _currentBlindLevel {
+		panic("Current blind level index is outside of the array")
+	}
+	level := sa.get(_currentTemplate.levels, _currentBlindLevel)
+
 	DrawTextCenter(
-		"2000/4000   200",
+		fmt.ctprintf("%d/%d   %d", level.smallBlind, level.bigBlind, level.ante),
 		center.x,
 		center.y + center.y / 3,
 		ScaleFont(150),
 		_blind_color,
 	)
 
-	DrawTextCenter(
-		"3000/6000   300",
-		center.x,
-		_window_size.y - _window_size.y / 6,
-		ScaleFont(100),
-		rl.GRAY,
-	)
+	//Small blind
+	if sa.len(_currentTemplate.levels) > _currentBlindLevel + 1 {
+		nextLevel := sa.get(_currentTemplate.levels, _currentBlindLevel + 1)
+		DrawTextCenter(
+			fmt.ctprintf("%d/%d   %d", nextLevel.smallBlind, nextLevel.bigBlind, nextLevel.ante),
+			center.x,
+			_window_size.y - _window_size.y / 6,
+			ScaleFont(100),
+			rl.GRAY,
+		)
+	}
 
+	//Chips
 	chipRadius := f32(ScaleFont(60))
 	firstChipY := i32(f32(_window_size.y) * 0.2)
 	chipX := i32(chipRadius) + 10
-	DrawChip(
-		rl.WHITE,
-		rl.BLACK,
-		{chipX, firstChipY + i32(chipRadius * 0) * 2},
-		chipRadius,
-		1000,
-		1,
-	)
-	DrawChip(
-		rl.BLUE,
-		rl.WHITE,
-		{chipX, firstChipY + i32(chipRadius * 1) * 2},
-		chipRadius,
-		3000,
-		10,
-	)
-	DrawChip(
-		rl.GREEN,
-		rl.WHITE,
-		{chipX, firstChipY + i32(chipRadius * 2) * 2},
-		chipRadius,
-		3000,
-		100,
-	)
-	DrawChip(
-		rl.RED,
-		rl.WHITE,
-		{chipX, firstChipY + i32(chipRadius * 3) * 2},
-		chipRadius,
-		3000,
-		888,
-	)
+
+	for i := 0; i < sa.len(_currentTemplate.chips); i += 1 {
+		chip := sa.get(_currentTemplate.chips, i)
+		c1, c2 := GetChipColors(chip.color)
+		DrawChip(
+			c1,
+			c2,
+			{chipX, firstChipY + i32(chipRadius * f32(i)) * 2},
+			chipRadius,
+			chip.amount,
+			chip.tokens,
+		)
+	}
 }
 
 DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32, tokens: i32) {
@@ -144,5 +132,19 @@ DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32, toke
 		ScaleFont(36),
 		rl.WHITE,
 	)
+}
+
+PauseGame :: proc() {
+	if !_running {panic("Can't pause a paused game")}
+	_lastPauseStartTime = time.now()
+	_running = false
+	_pauseBlinkState = true
+	_pauseBlinkStart = time.now()
+}
+
+ResumeGame :: proc() {
+	if _running {panic("Can't resume a game which is not paused")}
+	_pauseAccumulated += time.since(_lastPauseStartTime)
+	_running = true
 }
 

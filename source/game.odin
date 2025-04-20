@@ -20,6 +20,7 @@ init :: proc() {
 	rl.MaximizeWindow()
 
 	GenerateTemplates()
+	_currentTemplate = &_gameTemplates[0]
 	// for template in _gameTemplates {
 	// 	fmt.println("Name:", template.name)
 	// 	fmt.println("Description:", template.description)

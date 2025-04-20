@@ -87,13 +87,41 @@ TimerModeDraw :: proc(ft: f32) {
 	chipRadius := f32(ScaleFont(60))
 	firstChipY := i32(f32(_window_size.y) * 0.2)
 	chipX := i32(chipRadius) + 10
-	DrawChip(rl.WHITE, rl.BLACK, {chipX, firstChipY + i32(chipRadius * 0) * 2}, chipRadius, 1000)
-	DrawChip(rl.BLUE, rl.WHITE, {chipX, firstChipY + i32(chipRadius * 1) * 2}, chipRadius, 3000)
-	DrawChip(rl.GREEN, rl.WHITE, {chipX, firstChipY + i32(chipRadius * 2) * 2}, chipRadius, 3000)
-	DrawChip(rl.RED, rl.WHITE, {chipX, firstChipY + i32(chipRadius * 3) * 2}, chipRadius, 3000)
+	DrawChip(
+		rl.WHITE,
+		rl.BLACK,
+		{chipX, firstChipY + i32(chipRadius * 0) * 2},
+		chipRadius,
+		1000,
+		1,
+	)
+	DrawChip(
+		rl.BLUE,
+		rl.WHITE,
+		{chipX, firstChipY + i32(chipRadius * 1) * 2},
+		chipRadius,
+		3000,
+		10,
+	)
+	DrawChip(
+		rl.GREEN,
+		rl.WHITE,
+		{chipX, firstChipY + i32(chipRadius * 2) * 2},
+		chipRadius,
+		3000,
+		100,
+	)
+	DrawChip(
+		rl.RED,
+		rl.WHITE,
+		{chipX, firstChipY + i32(chipRadius * 3) * 2},
+		chipRadius,
+		3000,
+		888,
+	)
 }
 
-DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32) {
+DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32, tokens: i32) {
 	segments := 18
 	floatCenter := rl.Vector2{f32(center.x), f32(center.y)}
 	rl.DrawCircleV(floatCenter, radius, c1)
@@ -109,5 +137,12 @@ DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32) {
 	}
 	rl.DrawCircleV(floatCenter, radius * 0.8, c1)
 	DrawTextCenter(fmt.ctprint(value), center.x, center.y, ScaleFont(36), c2)
+	DrawTextCenter(
+		fmt.ctprint("x", tokens),
+		center.x + i32(radius) * 2,
+		center.y,
+		ScaleFont(36),
+		rl.WHITE,
+	)
 }
 

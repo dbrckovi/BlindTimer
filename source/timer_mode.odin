@@ -9,6 +9,8 @@ _levelStartTime := time.now() //when current BlindLevel timer started
 _lastPauseStartTime := time.now() //last time game was paused
 _durationSinceStart: time.Duration //duration since level started (minus pauses)
 _pauseAccumulated: time.Duration //total duration of all pauses since level started
+_pauseBlinkStart: time.Time //Time when blink color switched in pause mode
+_pauseBlinkState := false //Current blink state in pause mode
 
 _timer_back_color := rl.Color{22, 44, 53, 255}
 _timer_back_color_paused := rl.Color{22, 5, 5, 255}
@@ -17,16 +19,28 @@ _time_color_paused := rl.ORANGE
 _blind_color := rl.Color{220, 220, 255, 255}
 
 TimerModeUpdate :: proc() {
-	if _running {
+	if _running { 	// normal running mode
+
 		_durationSinceStart = time.since(
 			time.time_add(_levelStartTime, time.Nanosecond * _pauseAccumulated),
 		)
+
 		if rl.IsKeyPressed(.SPACE) {
 			//going into pause
 			_lastPauseStartTime = time.now()
 			_running = false
+			_pauseBlinkState = true
+			_pauseBlinkStart = time.now()
 		}
-	} else {
+	} else { 	// pause mode
+
+		// switch blink color if eniugh time passed
+		pauseBlinkDuration := time.since(_pauseBlinkStart)
+		if time.duration_milliseconds(pauseBlinkDuration) > 300 {
+			_pauseBlinkState = !_pauseBlinkState
+			_pauseBlinkStart = time.now()
+		}
+
 		if rl.IsKeyPressed(.SPACE) {
 			//resuming pause or starting
 			_pauseAccumulated += time.since(_lastPauseStartTime)
@@ -49,7 +63,8 @@ TimerModeDraw :: proc(ft: f32) {
 
 	//Main central timer
 	timeText := VisualizeTime(_durationSinceStart)
-	timeColor := _running ? _time_color : _time_color_paused
+	timeColor := _time_color
+	if !_running && _pauseBlinkState {timeColor = _time_color_paused}
 	DrawTextCenter(timeText, center.x, center.y - center.y / 4, ScaleFont(350), timeColor)
 
 	//Blinds

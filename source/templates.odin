@@ -3,10 +3,27 @@ package game
 import sa "core:container/small_array"
 import "core:fmt"
 
-_gameTemplates: [4]GameTemplate
+_gameTemplates: [5]GameTemplate
 
 GenerateTemplates :: proc() {
 	_gameTemplates = {
+		GenerateTemplate(
+			"Debug",
+			"Delete when ready for release",
+			1000,
+			{
+				{10, 20, 5, 0},
+				{15, 30, 5, 0},
+				{25, 50, 5, 0},
+				{50, 100, 5, 0},
+				{75, 150, 5, 0},
+				{100, 200, 5, 0},
+				{150, 300, 5, 0},
+				{200, 400, 5, 0},
+				{300, 600, 5, 0},
+			},
+			{{.WHITE, 10, 14}, {.BLUE, 20, 8}, {.GREEN, 50, 10}, {.RED, 100, 2}},
+		),
 		GenerateTemplate(
 			"Very Fast",
 			"Designed to end in 30–45 minutes",

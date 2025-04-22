@@ -8,12 +8,12 @@ import rl "vendor:raylib"
 _running := false //if game is not running, it's paused
 _levelStartTime := time.now() //when current BlindLevel timer started
 _lastPauseStartTime := time.now() //last time game was paused
-_durationSinceStart: time.Duration //duration since level started (minus pauses)
+_durationSinceLevelStart: time.Duration //duration since level started (minus pauses)
 _pauseAccumulated: time.Duration //total duration of all pauses since level started
 _pauseBlinkStart: time.Time //Time when blink color switched in pause mode
 _pauseBlinkState := false //Current blink state in pause mode
 _currentTemplate: ^GameTemplate
-_currentBlindLevel := 0 //Current blind level
+_currentBlindLevelIndex := 0 //Current blind level
 
 _timer_back_color := rl.Color{22, 44, 53, 255}
 _timer_back_color_paused := rl.Color{22, 5, 5, 255}
@@ -24,16 +24,31 @@ _blind_color := rl.Color{220, 220, 255, 255}
 TimerModeUpdate :: proc() {
 	if _running { 	// normal running mode
 
-		_durationSinceStart = time.since(
+		_durationSinceLevelStart = time.since(
 			time.time_add(_levelStartTime, time.Nanosecond * _pauseAccumulated),
 		)
+
+		timeLeft := GetTimeLeft()
+
+		// if timeLeft <= 1 {
+		// 	//TODO: Play warning sound
+		// }
+
+		if timeLeft <= 0 {
+			if !IsLastBlindLevel() { 	//next level
+				// TODO: Play switching sound
+				_levelStartTime = time.now()
+				_currentBlindLevelIndex += 1
+
+			}
+		}
 
 		if rl.IsKeyPressed(.SPACE) {
 			PauseGame()
 		}
 	} else { 	// pause mode
 
-		// switch blink color if eniugh time passed
+		// switch blink color if enough time passed
 		pauseBlinkDuration := time.since(_pauseBlinkStart)
 		if time.duration_milliseconds(pauseBlinkDuration) > 300 {
 			_pauseBlinkState = !_pauseBlinkState
@@ -50,25 +65,31 @@ TimerModeDraw :: proc(ft: f32) {
 	rl.ClearBackground(_running ? _timer_back_color : _timer_back_color_paused)
 	center := GetWindowCenter()
 
-	if rl.GuiButton({f32(_window_size.x - 70), 10, 50, 30}, "* * *") {
+	if rl.GuiButton({f32(_window_size.x - 70), 10, 50, 30}, ". . .") {
 		_mode = .SETTINGS
 		if _running {PauseGame()}
 	}
 
 	// Level name
-	DrawTextCenter(_currentTemplate.name, center.x, center.y / 8, ScaleFont(80), rl.BLUE)
+	levelNameColor := _running ? rl.BLUE : rl.RED
+	levelNameText := _running ? _currentTemplate.name : "Paused"
+	DrawTextCenter(levelNameText, center.x, center.y / 8, ScaleFont(80), levelNameColor)
 
 	//Main central timer
-	timeText := VisualizeTime(_durationSinceStart)
-	timeColor := _time_color
-	if !_running && _pauseBlinkState {timeColor = _time_color_paused}
-	DrawTextCenter(timeText, center.x, center.y - center.y / 4, ScaleFont(350), timeColor)
+	if IsLastBlindLevel() {
+		DrawTextCenter("END", center.x, center.y - center.y / 4, ScaleFont(350), rl.YELLOW)
 
+	} else {
+		timeText := VisualizeTime(GetTimeLeft())
+		timeColor := _time_color
+		if !_running && _pauseBlinkState {timeColor = _time_color_paused}
+		DrawTextCenter(timeText, center.x, center.y - center.y / 4, ScaleFont(350), timeColor)
+	}
 	//Big blind
-	if sa.len(_currentTemplate.levels) <= _currentBlindLevel {
+	if sa.len(_currentTemplate.levels) <= _currentBlindLevelIndex {
 		panic("Current blind level index is outside of the array")
 	}
-	level := sa.get(_currentTemplate.levels, _currentBlindLevel)
+	level := sa.get(_currentTemplate.levels, _currentBlindLevelIndex)
 
 	DrawTextCenter(
 		fmt.ctprintf("%d/%d   %d", level.smallBlind, level.bigBlind, level.ante),
@@ -79,8 +100,8 @@ TimerModeDraw :: proc(ft: f32) {
 	)
 
 	//Small blind
-	if sa.len(_currentTemplate.levels) > _currentBlindLevel + 1 {
-		nextLevel := sa.get(_currentTemplate.levels, _currentBlindLevel + 1)
+	if sa.len(_currentTemplate.levels) > _currentBlindLevelIndex + 1 {
+		nextLevel := sa.get(_currentTemplate.levels, _currentBlindLevelIndex + 1)
 		DrawTextCenter(
 			fmt.ctprintf("%d/%d   %d", nextLevel.smallBlind, nextLevel.bigBlind, nextLevel.ante),
 			center.x,
@@ -146,5 +167,16 @@ ResumeGame :: proc() {
 	if _running {panic("Can't resume a game which is not paused")}
 	_pauseAccumulated += time.since(_lastPauseStartTime)
 	_running = true
+}
+
+GetTimeLeft :: proc() -> time.Duration {
+	currentBlindLevel: BlindLevel = sa.get(_currentTemplate.levels, _currentBlindLevelIndex)
+	timeLeft: time.Duration =
+		time.Second * time.Duration(currentBlindLevel.durationSeconds) - _durationSinceLevelStart
+	return timeLeft
+}
+
+IsLastBlindLevel :: proc() -> bool {
+	return _currentBlindLevelIndex >= sa.len(_currentTemplate.levels) - 1
 }
 

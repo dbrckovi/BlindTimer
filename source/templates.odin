@@ -1,7 +1,6 @@
 package game
 
 import sa "core:container/small_array"
-import "core:fmt"
 
 _gameTemplates: [5]GameTemplate
 

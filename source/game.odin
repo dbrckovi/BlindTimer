@@ -1,8 +1,6 @@
 package game
 
 import "core:c"
-import sa "core:container/small_array"
-import "core:fmt"
 import rl "vendor:raylib"
 
 _run: bool
@@ -20,6 +18,7 @@ init :: proc() {
 	rl.MaximizeWindow()
 
 	GenerateTemplates()
+
 	_currentTemplate = &_gameTemplates[0]
 }
 

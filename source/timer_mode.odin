@@ -39,7 +39,6 @@ TimerModeUpdate :: proc() {
 				// TODO: Play switching sound
 				_levelStartTime = time.now()
 				_currentBlindLevelIndex += 1
-
 			}
 		}
 
@@ -65,15 +64,22 @@ TimerModeDraw :: proc(ft: f32) {
 	rl.ClearBackground(_running ? _timer_back_color : _timer_back_color_paused)
 	center := GetWindowCenter()
 
-	if rl.GuiButton({f32(_window_size.x - 70), 10, 50, 30}, ". . .") {
-		_mode = .SETTINGS
-		if _running {PauseGame()}
-	}
-
 	// Level name
 	levelNameColor := _running ? rl.BLUE : rl.RED
 	levelNameText := _running ? _currentTemplate.name : "Paused"
 	DrawTextCenter(levelNameText, center.x, center.y / 8, ScaleFont(80), levelNameColor)
+
+	//buttons
+	if rl.GuiButton({f32(_window_size.x - 70), f32(_window_size.y - 40), 50, 30}, ". . .") {
+		_mode = .SETTINGS
+		_settingsTemplate = _currentTemplate
+		if _running {PauseGame()}
+	}
+
+	pause_resumeText: cstring = _running ? "Pause (Space)" : "Resume (Space)"
+	if rl.GuiButton({20, f32(_window_size.y - 40), 170, 30}, pause_resumeText) {
+		if _running {PauseGame()} else {ResumeGame()}
+	}
 
 	//Main central timer
 	if IsLastBlindLevel() {
@@ -85,6 +91,7 @@ TimerModeDraw :: proc(ft: f32) {
 		if !_running && _pauseBlinkState {timeColor = _time_color_paused}
 		DrawTextCenter(timeText, center.x, center.y - center.y / 4, ScaleFont(350), timeColor)
 	}
+
 	//Big blind
 	if sa.len(_currentTemplate.levels) <= _currentBlindLevelIndex {
 		panic("Current blind level index is outside of the array")

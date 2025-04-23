@@ -28,7 +28,6 @@ TimerModeUpdate :: proc() {
 			time.time_add(_levelStartTime, time.Nanosecond * _pauseAccumulated),
 		)
 
-		_debug_text = fmt.ctprint(_durationSinceLevelStart)
 		timeLeft := GetTimeLeft()
 
 		// if timeLeft <= 1 {

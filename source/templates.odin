@@ -25,7 +25,7 @@ GenerateTemplates :: proc() {
 		),
 		GenerateTemplate(
 			"Very Fast",
-			"Designed to end in 30–45 minutes",
+			"Designed to end in 30-45 minutes",
 			1000,
 			{
 				{10, 20, 300, 0},
@@ -42,7 +42,7 @@ GenerateTemplates :: proc() {
 		),
 		GenerateTemplate(
 			"Fast (Turbo)",
-			"Great for finishing in 1–1.5 hours with 4–8 players",
+			"Great for finishing in 1-1.5 hours with 4-8 players",
 			1500,
 			{
 				{10, 20, 600, 0},

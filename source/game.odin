@@ -49,7 +49,8 @@ draw :: proc(ft: f32) {
 	}
 
 	if len(_debug_text) > 0 {
-		rl.DrawText(_debug_text, 0, _window_size.y - 20, 16, rl.GRAY)
+		DrawTextCenter(_debug_text, _window_size.x / 2, _window_size.y - 30, 20, rl.YELLOW)
+		// rl.DrawText(_debug_text, 0, _window_size.y - 20, 16, rl.GRAY)
 	}
 
 	rl.EndDrawing()

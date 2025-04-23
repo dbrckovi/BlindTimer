@@ -28,6 +28,7 @@ TimerModeUpdate :: proc() {
 			time.time_add(_levelStartTime, time.Nanosecond * _pauseAccumulated),
 		)
 
+		_debug_text = fmt.ctprint(_durationSinceLevelStart)
 		timeLeft := GetTimeLeft()
 
 		// if timeLeft <= 1 {
@@ -136,6 +137,18 @@ TimerModeDraw :: proc(ft: f32) {
 			chip.tokens,
 		)
 	}
+
+	//Starting stack
+	rightDetailsX := _window_size.x - ScaleFont(130)
+	DrawTextCenter(cstring("STARTING\nSTACK"), rightDetailsX, firstChipY, ScaleFont(30), rl.GRAY)
+
+	DrawTextCenter(
+		fmt.ctprint(_currentTemplate.startingStack),
+		rightDetailsX,
+		firstChipY + ScaleFont(80),
+		ScaleFont(60),
+		rl.WHITE,
+	)
 }
 
 DrawChip :: proc(c1, c2: rl.Color, center: [2]i32, radius: f32, value: i32, tokens: i32) {

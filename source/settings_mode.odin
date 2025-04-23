@@ -72,8 +72,9 @@ SettingsModeDraw :: proc(ft: f32) {
 		_currentBlindLevelIndex = 0
 		_running = false
 		_levelStartTime = time.now()
-		_pauseAccumulated = time.Duration(0)
-		_durationSinceLevelStart = time.Duration(0)
+		_pauseAccumulated = 0
+		_durationSinceLevelStart = 0
+		_lastPauseStartTime = time.now()
 	}
 
 	if rl.GuiButton({f32(center.x + 10), f32(_window_size.y - 40), 90, 30}, "Cancel") {

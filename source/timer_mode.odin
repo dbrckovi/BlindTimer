@@ -38,6 +38,7 @@ TimerModeUpdate :: proc() {
 			if !IsLastBlindLevel() { 	//next level
 				// TODO: Play switching sound
 				_levelStartTime = time.now()
+				_pauseAccumulated = 0
 				_currentBlindLevelIndex += 1
 			}
 		}

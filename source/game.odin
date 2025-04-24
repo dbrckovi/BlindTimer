@@ -66,8 +66,8 @@ draw :: proc(ft: f32) {
 
 	if _must_click {
 		if rl.GuiButton(
-			{f32(_window_size.x / 2 - 200), f32(_window_size.y / 2 - 100), 400, 200},
-			"Click here to enable sound in browser",
+			{f32(_window_size.x / 2 - 220), f32(_window_size.y / 2 - 100), 440, 200},
+			"Click here to enable sound in browser\n\n(Browsers need user interaction for audio)",
 		) {
 			_must_click = false
 		}

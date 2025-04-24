@@ -2,4 +2,4 @@
 
 [keys.normal]
 F5 = ":sh ./run_desktop.sh"
-F4 = ":sh ./build_desktop.sh"
+F4 = ":sh ./build_desktop.sh;echo BUILT"
